@@ -377,3 +377,127 @@ X202310 <-  mutate(X202310, end_lng = as.numeric(end_lng))
 X202311 <-  mutate(X202311, end_lat = as.numeric(end_lat)) 
 X202311 <-  mutate(X202311, end_lng = as.numeric(end_lng))
 ```
+Now we are finally ready to combine the 12 data frames into one stack
+```r
+# Stack individual quarter's data frames into one big data frame
+all_trips_v1 <- bind_rows(X202301, X202302, X202303, X202304, X202305, X202306, X202307, X202308, X202309, X202310, X202311, X202312)
+```
+Before proceeding, I went ahead and took a look at the newly combined data frame
+```r
+colnames(all_trips_v1)  #List of column names
+dim(all_trips_v1)  #Dimensions of the data frame?
+head(all_trips_v1)  #See the first 6 rows of data frame. Also tail(all_trips)
+str(all_trips_v1)  #See list of columns and data types (numeric, character, etc)
+summary(all_trips_v1)  #Statistical summary of data. Mainly for numerics
+
+> colnames(all_trips_v1)  #List of column names
+ [1] "ride_id"            "rideable_type"      "started_at"         "ended_at"           "start_station_name" "start_station_id"   "end_station_name"  
+ [8] "end_station_id"     "start_lat"          "start_lng"          "end_lat"            "end_lng"            "member_casual"     
+> dim(all_trips_v1)  #Dimensions of the data frame?
+[1] 5719877      13
+> head(all_trips_v1)  #See the first 6 rows of data frame. Also tail(all_trips)
+# A tibble: 6 × 13
+  ride_id   rideable_type started_at          ended_at            start_station_name start_station_id end_station_name end_station_id start_lat start_lng
+  <chr>     <chr>         <dttm>              <dttm>              <chr>              <chr>            <chr>            <chr>              <dbl>     <dbl>
+1 F96D5A74… electric_bike 2023-01-21 20:05:00 2023-01-21 20:16:00 Lincoln Ave & Ful… TA1309000058     Hampden Ct & Di… 202480              41.9     -87.6
+2 13CB7EB6… classic_bike  2023-01-10 15:37:00 2023-01-10 15:46:00 Kimbark Ave & 53r… TA1309000037     Greenwood Ave &… TA1308000002        41.8     -87.6
+3 BD88A2E6… electric_bike 2023-01-02 07:51:00 2023-01-02 08:05:00 Western Ave & Lun… RP-005           Valli Produce -… 599                 42.0     -87.7
+4 C90792D0… classic_bike  2023-01-22 10:52:00 2023-01-22 11:01:00 Kimbark Ave & 53r… TA1309000037     Greenwood Ave &… TA1308000002        41.8     -87.6
+5 33970175… classic_bike  2023-01-12 13:58:00 2023-01-12 14:13:00 Kimbark Ave & 53r… TA1309000037     Greenwood Ave &… TA1308000002        41.8     -87.6
+6 58E68156… electric_bike 2023-01-31 07:18:00 2023-01-31 07:21:00 Lakeview Ave & Fu… TA1309000019     Hampden Ct & Di… 202480              41.9     -87.6
+# ℹ 3 more variables: end_lat <dbl>, end_lng <dbl>, member_casual <chr>
+> str(all_trips_v1)  #See list of columns and data types (numeric, character, etc)
+spc_tbl_ [5,719,877 × 13] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+ $ ride_id           : chr [1:5719877] "F96D5A74A3E41399" "13CB7EB698CEDB88" "BD88A2E670661CE5" "C90792D034FED968" ...
+ $ rideable_type     : chr [1:5719877] "electric_bike" "classic_bike" "electric_bike" "classic_bike" ...
+ $ started_at        : POSIXct[1:5719877], format: "2023-01-21 20:05:00" "2023-01-10 15:37:00" "2023-01-02 07:51:00" "2023-01-22 10:52:00" ...
+ $ ended_at          : POSIXct[1:5719877], format: "2023-01-21 20:16:00" "2023-01-10 15:46:00" "2023-01-02 08:05:00" "2023-01-22 11:01:00" ...
+ $ start_station_name: chr [1:5719877] "Lincoln Ave & Fullerton Ave" "Kimbark Ave & 53rd St" "Western Ave & Lunt Ave" "Kimbark Ave & 53rd St" ...
+ $ start_station_id  : chr [1:5719877] "TA1309000058" "TA1309000037" "RP-005" "TA1309000037" ...
+ $ end_station_name  : chr [1:5719877] "Hampden Ct & Diversey Ave" "Greenwood Ave & 47th St" "Valli Produce - Evanston Plaza" "Greenwood Ave & 47th St" ...
+ $ end_station_id    : chr [1:5719877] "202480" "TA1308000002" "599" "TA1308000002" ...
+ $ start_lat         : num [1:5719877] 41.9 41.8 42 41.8 41.8 ...
+ $ start_lng         : num [1:5719877] -87.6 -87.6 -87.7 -87.6 -87.6 ...
+ $ end_lat           : num [1:5719877] 41.9 41.8 42 41.8 41.8 ...
+ $ end_lng           : num [1:5719877] -87.6 -87.6 -87.7 -87.6 -87.6 ...
+ $ member_casual     : chr [1:5719877] "member" "member" "casual" "member" ...
+ - attr(*, "spec")=
+  .. cols(
+  ..   ride_id = col_character(),
+  ..   rideable_type = col_character(),
+  ..   started_at = col_character(),
+  ..   ended_at = col_character(),
+  ..   start_station_name = col_character(),
+  ..   start_station_id = col_character(),
+  ..   end_station_name = col_character(),
+  ..   end_station_id = col_character(),
+  ..   start_lat = col_double(),
+  ..   start_lng = col_double(),
+  ..   end_lat = col_double(),
+  ..   end_lng = col_double(),
+  ..   member_casual = col_character()
+  .. )
+ - attr(*, "problems")=<externalptr> 
+> summary(all_trips_v1)  #Statistical summary of data. Mainly for numerics
+   ride_id          rideable_type        started_at                       ended_at                      start_station_name start_station_id  
+ Length:5719877     Length:5719877     Min.   :2023-01-01 00:01:00.0   Min.   :2023-01-01 00:02:00.00   Length:5719877     Length:5719877    
+ Class :character   Class :character   1st Qu.:2023-05-21 12:50:00.0   1st Qu.:2023-05-21 13:14:00.00   Class :character   Class :character  
+ Mode  :character   Mode  :character   Median :2023-07-20 18:02:00.0   Median :2023-07-20 18:19:00.00   Mode  :character   Mode  :character  
+                                       Mean   :2023-07-16 10:27:22.7   Mean   :2023-07-16 10:45:32.86                                        
+                                       3rd Qu.:2023-09-16 20:08:00.0   3rd Qu.:2023-09-16 20:28:00.00                                        
+                                       Max.   :2023-12-31 23:59:00.0   Max.   :2024-01-01 23:50:00.00                                        
+                                                                                                                                             
+ end_station_name   end_station_id       start_lat       start_lng         end_lat         end_lng       member_casual     
+ Length:5719877     Length:5719877     Min.   :41.63   Min.   :-87.94   Min.   : 0.00   Min.   :-88.16   Length:5719877    
+ Class :character   Class :character   1st Qu.:41.88   1st Qu.:-87.66   1st Qu.:41.88   1st Qu.:-87.66   Class :character  
+ Mode  :character   Mode  :character   Median :41.90   Median :-87.64   Median :41.90   Median :-87.64   Mode  :character  
+                                       Mean   :41.90   Mean   :-87.65   Mean   :41.90   Mean   :-87.65                     
+                                       3rd Qu.:41.93   3rd Qu.:-87.63   3rd Qu.:41.93   3rd Qu.:-87.63                     
+                                       Max.   :42.07   Max.   :-87.46   Max.   :42.18   Max.   :  0.00                     
+                                                                        NA's   :6990    NA's   :6990    
+```
+In order to aggregate trip data for each month or day, we will add a few columns.
+```r
+# Add columns that list the date, month, day, and year of each ride
+all_trips_v1$date <- as.Date(all_trips_v1$started_at) #The default format is yyyy-mm-dd
+all_trips_v1$month <- format(as.Date(all_trips_v1$date), "%m")
+all_trips_v1$day <- format(as.Date(all_trips_v1$date), "%d")
+all_trips_v1$year <- format(as.Date(all_trips_v1$date), "%Y")
+all_trips_v1$day_of_week <- format(as.Date(all_trips_v1$date), "%A")
+
+> colnames(all_trips_v1)  #List of column names
+ [1] "ride_id"            "rideable_type"      "started_at"         "ended_at"           "start_station_name" "start_station_id"   "end_station_name"  
+ [8] "end_station_id"     "start_lat"          "start_lng"          "end_lat"            "end_lng"            "member_casual"      "date"              
+[15] "month"              "day"                "year"               "day_of_week"   
+```
+Let's find out the trip length for each trip by calculating the difference between start and end times. We will also convert ride_length to numeric.
+```r
+# Add a "ride_length" calculation to all_trips (in seconds)
+all_trips_v1$ride_length <- difftime(all_trips_v1$ended_at,all_trips_v1$started_at)
+
+# Convert "ride_length" from Factor to numeric so we can run calculations on the data
+is.factor(all_trips_v1$ride_length)
+all_trips_v1$ride_length <- as.numeric(as.character(all_trips_v1$ride_length))
+is.numeric(all_trips_v1$ride_length)
+```
+After seeing that there are some ride length times with negative values, we will need to eliminate those rows as being bad data. As I am removing data, I created a new data frame all_trips_v2
+```r
+# Remove "bad" data
+# We will create a new version of the dataframe (v2) since data is being removed
+# https://www.datasciencemadesimple.com/delete-or-drop-rows-in-r-with-conditions-2/
+all_trips_v2 <- all_trips_v1[!(all_trips_v1$ride_length <= 0),]
+
+```
+Let's do a summary of the ride length column.  The median is 600 seconds (10 minutes), but the max is 5909340 seconds which is over 68 days.  That seems invalid.  
+```r
+> summary(all_trips_v2$ride_length)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      1     360     600    1107    1020 5909340
+```
+to get a better fell for ride times, I chose to convert this to minutes
+```r
+> all_trips_v2$ride_length_mins <- all_trips_v2$ride_length/60
+> summary(all_trips_v2$ride_length_mins)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+    0.02     6.00    10.00    18.44    17.00 98489.00 
+```
