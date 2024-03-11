@@ -337,3 +337,43 @@ $ end_lat            <dbl> 41.92, 41.89, 41.90, 41.94, 41.93, 41.88, 42.00, 41.9
 $ end_lng            <dbl> -87.66, -87.64, -87.64, -87.65, -87.64, -87.65, -87.67, -87.68, -87.68, -87.63, -87.65, -87.64, -87.64, -87.72, -87.62, -87.…
 $ member_casual      <chr> "member", "member", "member", "member", "member", "member", "member", "member", "member", "member", "member", "member", "mem…
 ```
+THe started_at and ended_at columns have different formats.  As I will be using them for calculations, it is important for them to all be the same.  So the next step is to make them all dttm format in yyyy-mm-dd hh:mm:ss format
+```r
+# format chr timestamp as dttm
+> X202301$started_at <- mdy_hm(X202301$started_at)
+> X202301$ended_at <- mdy_hm(X202301$ended_at)
+> X202302$started_at <- mdy_hm(X202302$started_at)
+> X202302$ended_at <- mdy_hm(X202302$ended_at)
+> X202303$started_at <- mdy_hm(X202303$started_at)
+> X202303$ended_at <- mdy_hm(X202303$ended_at)
+> X202305$started_at <- mdy_hm(X202305$started_at)
+> X202305$ended_at <- mdy_hm(X202305$ended_at)
+> X202306$started_at <- mdy_hm(X202306$started_at)
+> X202306$ended_at <- mdy_hm(X202306$ended_at)
+> X202307$started_at <- mdy_hm(X202307$started_at)
+> X202307$ended_at <- mdy_hm(X202307$ended_at)
+> X202308$started_at <- mdy_hm(X202308$started_at)
+> X202308$ended_at <- mdy_hm(X202308$ended_at)
+> X202309$started_at <- mdy_hm(X202309$started_at)
+> X202309$ended_at <- mdy_hm(X202309$ended_at)
+> X202310$started_at <- mdy_hm(X202310$started_at)
+> X202310$ended_at <- mdy_hm(X202310$ended_at)
+> X202311$started_at <- mdy_hm(X202311$started_at)
+> X202311$ended_at <- mdy_hm(X202311$ended_at)
+> X202312$started_at <- mdy_hm(X202312$started_at)
+> X202312$ended_at <- mdy_hm(X202312$ended_at)
+```
+I also discovered the four columns for latitude and longitude also have different formats.  
+```r
+# changes format for the longitude and latitude as numeric
+X202303 <-  mutate(X202303, end_lat = as.numeric(end_lat)) 
+X202303 <-  mutate(X202303, end_lng = as.numeric(end_lng))
+X202306 <-  mutate(X202306, end_lat = as.numeric(end_lat)) 
+X202306 <-  mutate(X202306, end_lng = as.numeric(end_lng)) 
+X202308 <-  mutate(X202308, end_lat = as.numeric(end_lat)) 
+X202308 <-  mutate(X202308, end_lng = as.numeric(end_lng)) 
+X202310 <-  mutate(X202310, end_lat = as.numeric(end_lat)) 
+X202310 <-  mutate(X202310, end_lng = as.numeric(end_lng))
+X202311 <-  mutate(X202311, end_lat = as.numeric(end_lat)) 
+X202311 <-  mutate(X202311, end_lng = as.numeric(end_lng))
+```
