@@ -460,7 +460,7 @@ In order to aggregate trip data for each month or day, we will add a few columns
 ```r
 # Add columns that list the date, month, day, and year of each ride
 all_trips_v1$date <- as.Date(all_trips_v1$started_at) #The default format is yyyy-mm-dd
-all_trips_v1$month <- format(as.Date(all_trips_v1$date), "%m")
+all_trips_v1$month <- format(as.Date(all_trips_v1$date), "%B") #Displays the month as month.name
 all_trips_v1$day <- format(as.Date(all_trips_v1$date), "%d")
 all_trips_v1$year <- format(as.Date(all_trips_v1$date), "%Y")
 all_trips_v1$day_of_week <- format(as.Date(all_trips_v1$date), "%A")
@@ -479,25 +479,53 @@ all_trips_v1$ride_length <- difftime(all_trips_v1$ended_at,all_trips_v1$started_
 is.factor(all_trips_v1$ride_length)
 all_trips_v1$ride_length <- as.numeric(as.character(all_trips_v1$ride_length))
 is.numeric(all_trips_v1$ride_length)
-```
-After seeing that there are some ride length times with negative values, we will need to eliminate those rows as being bad data. As I am removing data, I created a new data frame all_trips_v2
-```r
-# Remove "bad" data
-# We will create a new version of the dataframe (v2) since data is being removed
-# https://www.datasciencemadesimple.com/delete-or-drop-rows-in-r-with-conditions-2/
-all_trips_v2 <- all_trips_v1[!(all_trips_v1$ride_length <= 0),]
 
+> all_trips_v1$ride_length <- difftime(all_trips_v1$ended_at,all_trips_v1$started_at)
+> is.factor(all_trips_v1$ride_length)
+[1] FALSE
+> all_trips_v1$ride_length <- as.numeric(as.character(all_trips_v1$ride_length))
+> is.numeric(all_trips_v1$ride_length)
+[1] TRUE
 ```
+
 Let's do a summary of the ride length column.  The median is 600 seconds (10 minutes), but the max is 5909340 seconds which is over 68 days.  That seems invalid.  
 ```r
 > summary(all_trips_v2$ride_length)
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-      1     360     600    1107    1020 5909340
+   Min.     1st Qu.  Median    Mean  3rd Qu.    Max. 
+  -999420     300     598    1090    1020     5909340
 ```
 to get a better fell for ride times, I chose to convert this to minutes
 ```r
 > all_trips_v2$ride_length_mins <- all_trips_v2$ride_length/60
 > summary(all_trips_v2$ride_length_mins)
-    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-    0.02     6.00    10.00    18.44    17.00 98489.00 
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+-16657.00      5.00      9.97     18.17     17.00  98489.00
+```
+
+After seeing that there are some ride length times with negative values, we will need to eliminate those rows as being bad data. I am also going to eliminate rides that were less than 2 mins as being false starts or rides used to move to different dock.
+As I am removing data, I created a new data frame all_trips_v2
+```r
+# Remove "bad" data
+# We will create a new version of the dataframe (v2) since data is being removed
+
+all_trips_v2 <- all_trips_v1[!(all_trips_v1$ride_length <= 2),]
+
+```
+
+Earlier, I added a column for month, but I also want to see how rides are different by season and time of day so I will add two more columns to track those. 
+```r
+# create a column to assign seasons to the months
+all_trips_v2 <- all_trips_v2 %>% mutate(seasons = recode(month_name,
+                                                    December = "Winter",
+                                                    January = "Winter",
+                                                    February = "Winter",
+                                                    March = "Spring",
+                                                    April = "Spring",
+                                                    May = "Spring",
+                                                    June = "Summer",
+                                                    July = "Summer",
+                                                    August = "Summer",
+                                                    September = "Fall",
+                                                    October = "Fall",
+                                                    November = "Fall"))
 ```
