@@ -676,4 +676,6 @@ head(weekly_trips, 14)
 
 
 ```
+Looking at this summary, we can see stark differences in the usage, especially comparing weekday to weekend volume.  For casual riders, the weekends see the highest number and the longest rides.  For members, there is a significant drop in the number of rideson the weekends, though the average per ride is increased.  That dropoff on the weekends for members is further evidence that many members use the bikes for work.
+
 
