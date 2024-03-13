@@ -678,4 +678,23 @@ head(weekly_trips, 14)
 ```
 Looking at this summary, we can see stark differences in the usage, especially comparing weekday to weekend volume.  For casual riders, the weekends see the highest number and the longest rides.  For members, there is a significant drop in the number of rideson the weekends, though the average per ride is increased.  That dropoff on the weekends for members is further evidence that many members use the bikes for work.
 
+Let's plot both the number of rides by rider type and the average length of rides by member type
+```r
+# plot for number of trips by day and rider type
+ggplot(data = weekly_trips)+
+  geom_col(mapping = aes(x = day_of_week, y = total_trips, fill = member_casual))+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(title = 'Rides by Day of Week 2023', subtitle = 'Comparing Casual Riders to Members', x = 'Day of the Week', y = 'Rides', fill = 'Member Type')+
+  facet_wrap(~member_casual)
+```
+![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
 
+```r
+# plot for average ride length by day of week and rider type
+ggplot(data = weekly_trips)+
+  geom_col(mapping = aes(x = day_of_week, y = avg_trip_mins, fill = member_casual))+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(title = 'Average Ride in Minutes by Day 2023', subtitle = 'Comparing Casual Riders with Members', x = 'Day of the Week', y = 'Averageg Ride in Minutes', fill = 'Member Type')+
+  facet_wrap(~member_casual)
+```
+![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
