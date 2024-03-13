@@ -490,14 +490,14 @@ is.numeric(all_trips_v1$ride_length)
 
 Let's do a summary of the ride length column.  The median is 600 seconds (10 minutes), but the max is 5909340 seconds which is over 68 days.  That seems invalid.  
 ```r
-> summary(all_trips_v2$ride_length)
+> summary(all_trips_v1$ride_length)
    Min.     1st Qu.  Median    Mean  3rd Qu.    Max. 
   -999420     300     598    1090    1020     5909340
 ```
 to get a better fell for ride times, I chose to convert this to minutes
 ```r
 > all_trips_v2$ride_length_mins <- all_trips_v2$ride_length/60
-> summary(all_trips_v2$ride_length_mins)
+> summary(all_trips_v1$ride_length_mins)
      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 -16657.00      5.00      9.97     18.17     17.00  98489.00
 ```
@@ -508,7 +508,8 @@ As I am removing data, I created a new data frame all_trips_v2
 # Remove "bad" data
 # We will create a new version of the dataframe (v2) since data is being removed
 
-all_trips_v2 <- all_trips_v1[!(all_trips_v1$ride_length <= 2),]
+all_trips_v2 <- all_trips_v2 %>% 
+  filter(ride_length_mins >= 2 & ride_length_mins <= 1440)
 
 ```
 
@@ -529,3 +530,150 @@ all_trips_v2 <- all_trips_v2 %>% mutate(seasons = recode(month_name,
                                                     October = "Fall",
                                                     November = "Fall"))
 ```
+We will want to be able to see how riders use the bike during different times of the day so I have assigned the hour to periods of the day 
+```r
+#create a column for time of day from the hour column created earlier 
+all_trips_v2 <- all_trips_v2 %>% mutate(time_of_day = case_when(
+  hour >= 4 & hour < 8 ~ "Early Morning",
+  hour >= 8 & hour < 12 ~ "Mid Morning",
+  hour >= 12 & hour < 16  ~ "Afternoon",
+  hour >= 16 & hour < 20  ~ "Evening",
+  hour >= 20 & hour <= 23  ~ "Early Night",
+  hour >= 0 & hour < 2 ~ "Early Night",
+  hour >= 2 & hour < 6  ~ "Late Night"))
+```
+Final verification of data before starting analysis
+Duplicate Data: Data has no duplicates
+Missing Values: elected to keep rows with missing station and lat/lng as the rows involved were insignificant
+Outliers: Removed rides shorter than 2 mins as being invalid (test or bike removed for service) and rides over 24 hours
+General: After processing, the data is complete, relevant, consistent and accurate.
+
+# ANALYZE
+
+Let's start by getting a feel for how many casual rides there were compared to member rides.  Note this ONLY compare rides as each rider could have multiple rides.  We can see that 64% of rides for 2023 were taken by members.
+```r
+# Count and percentage of member vs. casual riders
+all_trips_v2 %>% 
+  group_by(member_casual) %>% 
+  summarize(count = n(), Percentage = n()/nrow(all_trips_v2)*100)
+
+> all_trips_v2 %>% 
++   group_by(member_casual) %>% 
++   summarize(count = n(), Percentage = n()/nrow(all_trips_v2)*100)
+# A tibble: 2 × 3
+  member_casual   count Percentage
+  <chr>           <int>      <dbl>
+1 casual        1984491       36.0
+2 member        3523930       64.0
+```
+
+
+
+Let's compare the mean, median, min, and max for members and casual riders
+```r
+# Compare members and casual users
+aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = mean)
+aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = median)
+aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = max)
+aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = min)
+
+> aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = mean)
+  all_trips_v2$member_casual all_trips_v2$ride_length_mins
+1                     casual                      21.39670
+2                     member                      12.49711
+> aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = median)
+  all_trips_v2$member_casual all_trips_v2$ride_length_mins
+1                     casual                            12
+2                     member                             9
+> aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = max)
+  all_trips_v2$member_casual all_trips_v2$ride_length_mins
+1                     casual                          1440
+2                     member                          1440
+> aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = min)
+  all_trips_v2$member_casual all_trips_v2$ride_length_mins
+1                     casual                             2
+2                     member                             2
+```
+We can immediately see that casual riders take longer rides, which is at least partially skewed as there is an outlier highlighted in the max time.  We will want to investigate further to see how many other ride times are like this.  It could be the only one, indicating a possible data issue or it could signify a portion of users who rent the bikes and keep them for over 24 hours.    
+
+Let's take a look how members and casual riders differ in per day.
+```r
+# Member/casual average ride times for each day
+> aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual + all_trips_v2$day_of_week, FUN = mean)
+   all_trips_v2$member_casual all_trips_v2$day_of_week all_trips_v2$ride_length_mins
+1                      casual                   Friday                      20.77405
+2                      member                   Friday                      12.43841
+3                      casual                   Monday                      21.00054
+4                      member                   Monday                      11.86208
+5                      casual                 Saturday                      24.25643
+6                      member                 Saturday                      13.93706
+7                      casual                   Sunday                      24.98214
+8                      member                   Sunday                      13.93531
+9                      casual                 Thursday                      18.65148
+10                     member                 Thursday                      12.00116
+11                     casual                  Tuesday                      19.13015
+12                     member                  Tuesday                      11.99702
+13                     casual                Wednesday                      18.24386
+14                     member                Wednesday                      11.91430
+```
+Again we see that casual members have longer rides than members every day.  This could indicate that members may be taking advantage of unlimited rides to use the bikes for work commute or even local errands and could mean casual riders may be more likely to be taking in scenery.  While the data does not contain information to help us know how many riders are local versus visitors, it is safe to assume that the casual riders have a higher percentage of non-local riders, which could be attributing to the longer ride times for casual riders.
+
+That said, looking at the data above, the days of the week are out of order and as we will want to use visuals for this, the days of the week need to be in order.
+```r
+> all_trips_v2$day_of_week <- ordered(all_trips_v2$day_of_week, levels=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+> aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual + all_trips_v2$day_of_week, FUN = mean)
+   all_trips_v2$member_casual all_trips_v2$day_of_week all_trips_v2$ride_length_mins
+1                      casual                   Monday                      21.00054
+2                      member                   Monday                      11.86208
+3                      casual                  Tuesday                      19.13015
+4                      member                  Tuesday                      11.99702
+5                      casual                Wednesday                      18.24386
+6                      member                Wednesday                      11.91430
+7                      casual                 Thursday                      18.65148
+8                      member                 Thursday                      12.00116
+9                      casual                   Friday                      20.77405
+10                     member                   Friday                      12.43841
+11                     casual                 Saturday                      24.25643
+12                     member                 Saturday                      13.93706
+13                     casual                   Sunday                      24.98214
+14                     member                   Sunday                      13.93531
+
+```
+Once they are in order, we can also now see that the weekends have longer rides than the week days for casual riders and members.  
+
+Let's look at a summary of rides by day showing number of rides per day and average length per day, grouped by the rider types (member, casual)
+
+```r
+# create new DF to summarize daily usage
+weekly_trips <- all_trips_v2 %>%
+  group_by(member_casual, day_of_week) %>%
+  summarize(total_trips = n(), avg_trip_mins = mean(ride_length_mins))
+
+head(weekly_trips, 14)
+> weekly_trips <- all_trips_v2 %>%
++   group_by(member_casual, day_of_week) %>%
++   summarize(total_trips = n(), avg_trip_mins = mean(ride_length_mins))
+`summarise()` has grouped output by 'member_casual'. You can override using the `.groups` argument.
+> head(weekly_trips, 14)
+# A tibble: 14 × 4
+# Groups:   member_casual [2]
+   member_casual day_of_week total_trips avg_trip_mins
+   <chr>         <ord>             <int>         <dbl>
+ 1 casual        Monday           226559          21.0
+ 2 casual        Tuesday          237452          19.1
+ 3 casual        Wednesday        240351          18.2
+ 4 casual        Thursday         260981          18.7
+ 5 casual        Friday           300599          20.8
+ 6 casual        Saturday         395404          24.3
+ 7 casual        Sunday           323145          25.0
+ 8 member        Monday           476224          11.9
+ 9 member        Tuesday          555546          12.0
+10 member        Wednesday        565275          11.9
+11 member        Thursday         567276          12.0
+12 member        Friday           511156          12.4
+13 member        Saturday         454932          13.9
+14 member        Sunday           393521          13.9
+
+
+```
+
