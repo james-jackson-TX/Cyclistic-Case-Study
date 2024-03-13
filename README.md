@@ -678,8 +678,13 @@ head(weekly_trips, 14)
 ```
 Looking at this summary, we can see stark differences in the usage, especially comparing weekday to weekend volume.  For casual riders, the weekends see the highest number and the longest rides.  For members, there is a significant drop in the number of rideson the weekends, though the average per ride is increased.  That dropoff on the weekends for members is further evidence that many members use the bikes for work.
 
-Let's plot both the number of rides by rider type and the average length of rides by member type
+Let's plot both the number of rides by rider type and the average length of rides by rider type
 ```r
+# create new DF to summarize daily usage
+weekly_trips <- all_trips_v2 %>%
+  group_by(member_casual, day_of_week) %>%
+  summarize(total_trips = n(), avg_trip_mins = mean(ride_length_mins))
+
 # plot for number of trips by day and rider type
 ggplot(data = weekly_trips)+
   geom_col(mapping = aes(x = day_of_week, y = total_trips, fill = member_casual))+
@@ -698,3 +703,20 @@ ggplot(data = weekly_trips)+
   facet_wrap(~member_casual)
 ```
 ![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+
+Now let's look at a plot for rides by bike type and rider type
+```r
+# create new DF to summarize bike type usage
+biketype_trips <- all_trips_v2 %>%
+  group_by(member_casual, rideable_type) %>%
+  summarize(total_rt_trips = n(), avg_rt_trip_mins = mean(ride_length_mins))
+
+# plot for number of trips bike type
+ggplot(data = biketype_trips)+
+  geom_col(mapping = aes(x = rideable_type, y = total_rt_trips, fill = member_casual))+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(title = 'Rides by Bike Type 2023', subtitle = 'Comparing Casual Riders to Members', x = 'Member Type', y = 'Rides', fill = 'Member Type')+
+  facet_wrap(~member_casual)
+```
+![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+
