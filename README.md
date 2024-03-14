@@ -704,7 +704,7 @@ ggplot(data = weekly_trips)+
 ```
 ![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
 
-Now let's look at a plot for rides by bike type and rider type
+Now let's look at a plot for rides by bike type and rider type.  
 ```r
 # create new DF to summarize bike type usage
 biketype_trips <- all_trips_v2 %>%
@@ -720,3 +720,63 @@ ggplot(data = biketype_trips)+
 ```
 ![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
 
+Let's look at length of rides in 30 minute intervals by rider type. The data shows almost 5 million rides (casual 1644790, members 3311582) were less than 30 minutes.  Another interesting point is that members comprised 66.8% of rides under 30 minutes, while that dipped to 45% of rides between 30 and 60 minutes and only 18.6% of rides over 60 minutes.  That data makes it quite clear that member rides are typically short
+```r
+all_trips_v2 %>%
+  group_by(member_casual) %>%
+  summarize("<30 min" = sum(ride_length_mins <30.00),
+            "30-59 min" = sum(ride_length_mins >=30 & ride_length_mins <60.00),
+            "60-89 min" = sum(ride_length_mins >=60 & ride_length_mins <90.00),
+            "90-119 min" = sum(ride_length_mins >=90 & ride_length_mins <120.00),
+            ">120 min" = sum(ride_length_mins >=120)
+  )
+
+> all_trips_v2 %>%
++   group_by(member_casual) %>%
++   summarize("<30 min" = sum(ride_length_mins <30.00),
++             "30-59 min" = sum(ride_length_mins >=30 & ride_length_mins <60.00),
++             "60-89 min" = sum(ride_length_mins >=60 & ride_length_mins <90.00),
++             "90-119 min" = sum(ride_length_mins >=90 & ride_length_mins <120.00),
++             ">120 min" = sum(ride_length_mins >=120)
++   )
+# A tibble: 2 × 6
+  member_casual `<30 min` `30-59 min` `60-89 min` `90-119 min` `>120 min`
+  <chr>             <int>       <int>       <int>        <int>      <int>
+1 casual          1644790      228479       61200        23583      26439
+2 member          3311582      186953       13597         3933       7865
+```
+![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+
+
+Being curious, I wondered what 20 minute intervals would look like
+```r
+all_trips_v2 %>%
+  group_by(member_casual) %>%
+  summarize("<20 min" = sum(ride_length_mins <20.00),
+            "20-39 min" = sum(ride_length_mins >=20 & ride_length_mins <40.00),
+            "40-59 min" = sum(ride_length_mins >=40 & ride_length_mins <60.00),
+            "60-79 min" = sum(ride_length_mins >=60 & ride_length_mins <80.00),
+            "80-99 min" = sum(ride_length_mins >=80 & ride_length_mins <100.00),
+            "100-119 min" = sum(ride_length_mins >=100 & ride_length_mins <120.00),
+            ">120 min" = sum(ride_length_mins >=120)
+  )
+
+> all_trips_v2 %>%
++   group_by(member_casual) %>%
++   summarize("<20 min" = sum(ride_length_mins <20.00),
++             "20-39 min" = sum(ride_length_mins >=20 & ride_length_mins <40.00),
++             "40-59 min" = sum(ride_length_mins >=40 & ride_length_mins <60.00),
++             "60-79 min" = sum(ride_length_mins >=60 & ride_length_mins <80.00),
++             "80-99 min" = sum(ride_length_mins >=80 & ride_length_mins <100.00),
++             "100-119 min" = sum(ride_length_mins >=100 & ride_length_mins <120.00),
++             ">120 min" = sum(ride_length_mins >=120)
++   )
+# A tibble: 2 × 8
+  member_casual `<20 min` `20-39 min` `40-59 min` `60-79 min` `80-99 min` `100-119 min` `>120 min`
+  <chr>             <int>       <int>       <int>       <int>       <int>         <int>      <int>
+1 casual          1385444      380235      107590       47263       24037         13483      26439
+2 member          2977922      457789       62824       11003        4347          2180       7865
+
+```
+These visuals illustrate the difference at 20 mins compared to all rides longer than 20 minutes.
+![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
