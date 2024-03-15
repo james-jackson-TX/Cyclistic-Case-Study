@@ -84,7 +84,7 @@ Data was downloaded and named consistently.
 I opened each of the 12 monthly files in Excel and checked for duplicate records - no duplicate ride_id information
 Then I checked for blank fields.  There were quite a lot of blanks (over 800K), but they were all in Start/End Station Name/ID columns and Start/End Lat/Long columns.  Due to the possibility of skewing results if those records were removed, I opted to fill the blanks with "Not Available" and keep the records.
 
-## Create Data Frame using R Studio
+## 2.8 Create Data Frame using R Studio
 To better manage the task, the 12 monthly files need to be combined into one file which would result in a file with over 5 million rows. With data that large, Excel is not the right tool for further analysis.  I opted to use R Studio for the remainder of my analysis work.
 
 I started by opening R Studio and installing the packages I would need for this project.
@@ -337,7 +337,7 @@ $ end_lat            <dbl> 41.92, 41.89, 41.90, 41.94, 41.93, 41.88, 42.00, 41.9
 $ end_lng            <dbl> -87.66, -87.64, -87.64, -87.65, -87.64, -87.65, -87.67, -87.68, -87.68, -87.63, -87.65, -87.64, -87.64, -87.72, -87.62, -87.…
 $ member_casual      <chr> "member", "member", "member", "member", "member", "member", "member", "member", "member", "member", "member", "member", "mem…
 ```
-THe started_at and ended_at columns have different formats.  As I will be using them for calculations, it is important for them to all be the same.  So the next step is to make them all dttm format in yyyy-mm-dd hh:mm:ss format
+Two columns, started_at and ended_at, have different formats.  As I will be using them for calculations, it is important for them to all be the same.  So the next step is to make them all dttm format in yyyy-mm-dd hh:mm:ss format
 ```r
 # format chr timestamp as dttm
 > X202301$started_at <- mdy_hm(X202301$started_at)
@@ -382,6 +382,8 @@ Now we are finally ready to combine the 12 data frames into one stack
 # Stack individual quarter's data frames into one big data frame
 all_trips_v1 <- bind_rows(X202301, X202302, X202303, X202304, X202305, X202306, X202307, X202308, X202309, X202310, X202311, X202312)
 ```
+## 2.9 Review Combined all_trips data frame
+
 Before proceeding, I went ahead and took a look at the newly combined data frame
 ```r
 colnames(all_trips_v1)  #List of column names
@@ -470,7 +472,7 @@ all_trips_v1$day_of_week <- format(as.Date(all_trips_v1$date), "%A")
  [8] "end_station_id"     "start_lat"          "start_lng"          "end_lat"            "end_lng"            "member_casual"      "date"              
 [15] "month"              "day"                "year"               "day_of_week"   
 ```
-Let's find out the trip length for each trip by calculating the difference between start and end times. We will also convert ride_length to numeric.
+To be able to analyze rider usage differences in terms of ride lengths, I will now add a calculating the difference between start and end times and convert the result to a numeric value to allow for calculations and visuals.
 ```r
 # Add a "ride_length" calculation to all_trips (in seconds)
 all_trips_v1$ride_length <- difftime(all_trips_v1$ended_at,all_trips_v1$started_at)
@@ -542,13 +544,15 @@ all_trips_v2 <- all_trips_v2 %>% mutate(time_of_day = case_when(
   hour >= 0 & hour < 2 ~ "Early Night",
   hour >= 2 & hour < 6  ~ "Late Night"))
 ```
-Final verification of data before starting analysis
+## 2.10 Final verification of data before starting analysis
 Duplicate Data: Data has no duplicates
 Missing Values: elected to keep rows with missing station and lat/lng as the rows involved were insignificant
 Outliers: Removed rides shorter than 2 mins as being invalid (test or bike removed for service) and rides over 24 hours
 General: After processing, the data is complete, relevant, consistent and accurate.
 
-# ANALYZE
+# 3 ANALYZE
+
+## 3.1 Comparing Number of Rides - Member vs. Casual
 
 Let's start by getting a feel for how many casual rides there were compared to member rides.  Note this ONLY compare rides as each rider could have multiple rides.  We can see that 64% of rides for 2023 were taken by members.
 ```r
@@ -567,9 +571,9 @@ all_trips_v2 %>%
 2 member        3523930       64.0
 ```
 
+## 3.2 Compare Ride Lengths - Member vs. Casual
 
-
-Let's compare the mean, median, min, and max for members and casual riders
+Let's compare the mean, median, min, and max ride lengths for members and casual riders
 ```r
 # Compare members and casual users
 aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = mean)
@@ -596,6 +600,8 @@ aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual, FUN = min)
 ```
 We can immediately see that casual riders take longer rides, which is at least partially skewed as there is an outlier highlighted in the max time.  We will want to investigate further to see how many other ride times are like this.  It could be the only one, indicating a possible data issue or it could signify a portion of users who rent the bikes and keep them for over 24 hours.    
 
+## 3.2 Compare Daily Avg Ride Times - Members vs. Casual
+
 Let's take a look how members and casual riders differ in per day.
 ```r
 # Member/casual average ride times for each day
@@ -618,7 +624,7 @@ Let's take a look how members and casual riders differ in per day.
 ```
 Again we see that casual members have longer rides than members every day.  This could indicate that members may be taking advantage of unlimited rides to use the bikes for work commute or even local errands and could mean casual riders may be more likely to be taking in scenery.  While the data does not contain information to help us know how many riders are local versus visitors, it is safe to assume that the casual riders have a higher percentage of non-local riders, which could be attributing to the longer ride times for casual riders.
 
-That said, looking at the data above, the days of the week are out of order and as we will want to use visuals for this, the days of the week need to be in order.
+That said, looking at the data above, the days of the week are out of order.  To help us identify trends, I will put them in order (starting with Monday so that the weekend data stays together)
 ```r
 > all_trips_v2$day_of_week <- ordered(all_trips_v2$day_of_week, levels=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 > aggregate(all_trips_v2$ride_length_mins ~ all_trips_v2$member_casual + all_trips_v2$day_of_week, FUN = mean)
@@ -640,6 +646,8 @@ That said, looking at the data above, the days of the week are out of order and 
 
 ```
 Once they are in order, we can also now see that the weekends have longer rides than the week days for casual riders and members.  
+
+## 3.3 Create weekly_trips data frame to summarize member vs. casual usage on different days
 
 Let's look at a summary of rides by day showing number of rides per day and average length per day, grouped by the rider types (member, casual)
 
@@ -694,6 +702,8 @@ ggplot(data = weekly_trips)+
 ```
 ![This is an image](https://i.imgur.com/rzuZM34.png)
 
+We can see that for Casual riders the number of rides is fairly consistent Monday - Thursday, spiking as it gets to Friday - Sunday.  We would need other data to verify if that increase is due to additional non-local visitors on the weekends.
+We also see the reverse on Member usage.  They have more rides Monday - Friday with a sharp decline on the weekends.  There is suspicion that these trends are related to more tourists on the weekend, driving the casual increase along with more work-related bike usage for members.  
 
 ```r
 # plot for average ride length by day of week and rider type
@@ -704,6 +714,8 @@ ggplot(data = weekly_trips)+
   facet_wrap(~member_casual)
 ```
 ![This is an image](https://i.imgur.com/4nWxQF9.png)
+
+When we look at the average ride times, the members data is remarkably flat with little variance from day to day but with a slight increase on the weekends, where the data for the casual riders vary considerably from day to day, but especially increase with longer rides on the weekends.  
 
 Now let's look at a plot for rides by bike type and rider type.  
 ```r
@@ -720,6 +732,10 @@ ggplot(data = biketype_trips)+
   facet_wrap(~member_casual)
 ```
 ![This is an image](https://i.imgur.com/iOqbL7r.png)
+
+The data tells us that members are pretty evenly split between the electric and classic bikes, but the casual rider has a slight preference for the electric bike.  While the available data cannot verify why, my leading assumption is condition of the rider groups.  As visitors may include a portion of customers who are not used to riding a bike, they might opt for more electric options to conserve energy.
+
+## 3.4 Compare Ride Intervals - Member vs. Casual
 
 Let's look at length of rides in 30 minute intervals by rider type. The data shows almost 5 million rides (casual 1644790, members 3311582) were less than 30 minutes.  Another interesting point is that members comprised 66.8% of rides under 30 minutes, while that dipped to 45% of rides between 30 and 60 minutes and only 18.6% of rides over 60 minutes.  That data makes it quite clear that member rides are typically short
 ```r
@@ -781,6 +797,8 @@ all_trips_v2 %>%
 ```
 These visuals illustrate the difference at 20 mins compared to all rides longer than 20 minutes.
 ![This is an image](https://i.imgur.com/aloNjZS.png)
+
+## 3.5 Compare rides by Month and Season - Member vs. Casual
 
 Now let's look at rides by a few different break downs
 Let's start with rides by month.  When we look at this information by season shortly you will see even more dramatic results, but here you can easily see that unsurprisingly the winter month (Dec-Feb) have the lowest usage, and the summer months (Jun-Aug) have the highest usage by both members and casual riders.
