@@ -1,4 +1,4 @@
-![This is an image](https://bayodeolorundare.com/wp-content/uploads/2023/02/tableau_hero.jpg)
+![This is an image](https://i.imgur.com/vfJkCrn.png)
 # Cyclistic Case Study
 *Google Data Analyst Capstone Project*
 
