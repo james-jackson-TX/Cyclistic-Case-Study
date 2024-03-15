@@ -692,9 +692,8 @@ ggplot(data = weekly_trips)+
   labs(title = 'Rides by Day of Week 2023', subtitle = 'Comparing Casual Riders to Members', x = 'Day of the Week', y = 'Rides', fill = 'Member Type')+
   facet_wrap(~member_casual)
 ```
-![This is an image](https://imgur.com/rzuZM34)
-![This is an image](https://imgur.com/rzuZM34)
-![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+![This is an image](https://i.imgur.com/rzuZM34.png)
+
 
 ```r
 # plot for average ride length by day of week and rider type
@@ -704,7 +703,7 @@ ggplot(data = weekly_trips)+
   labs(title = 'Average Ride in Minutes by Day 2023', subtitle = 'Comparing Casual Riders with Members', x = 'Day of the Week', y = 'Averageg Ride in Minutes', fill = 'Member Type')+
   facet_wrap(~member_casual)
 ```
-![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+![This is an image](https://i.imgur.com/4nWxQF9.png)
 
 Now let's look at a plot for rides by bike type and rider type.  
 ```r
@@ -720,7 +719,7 @@ ggplot(data = biketype_trips)+
   labs(title = 'Rides by Bike Type 2023', subtitle = 'Comparing Casual Riders to Members', x = 'Member Type', y = 'Rides', fill = 'Member Type')+
   facet_wrap(~member_casual)
 ```
-![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+![This is an image](https://i.imgur.com/iOqbL7r.png)
 
 Let's look at length of rides in 30 minute intervals by rider type. The data shows almost 5 million rides (casual 1644790, members 3311582) were less than 30 minutes.  Another interesting point is that members comprised 66.8% of rides under 30 minutes, while that dipped to 45% of rides between 30 and 60 minutes and only 18.6% of rides over 60 minutes.  That data makes it quite clear that member rides are typically short
 ```r
@@ -747,7 +746,7 @@ all_trips_v2 %>%
 1 casual          1644790      228479       61200        23583      26439
 2 member          3311582      186953       13597         3933       7865
 ```
-![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+![This is an image](https://i.imgur.com/MN3nMxi.png)
 
 
 Being curious, I wondered what 20 minute intervals would look like
@@ -781,7 +780,7 @@ all_trips_v2 %>%
 
 ```
 These visuals illustrate the difference at 20 mins compared to all rides longer than 20 minutes.
-![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+![This is an image](https://i.imgur.com/aloNjZS.png)
 
 Now let's look at rides by a few different break downs
 Let's start with rides by month.  When we look at this information by season shortly you will see even more dramatic results, but here you can easily see that unsurprisingly the winter month (Dec-Feb) have the lowest usage, and the summer months (Jun-Aug) have the highest usage by both members and casual riders.
@@ -792,7 +791,7 @@ ggplot(all_trips_v2, aes(x = month)) +
   ggtitle("Rides by month") +
   xlab("Month") + ylab("Number of rides")
 ```
-![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+![This is an image](https://i.imgur.com/k8XUPNH.png)
 
 
 ```r
@@ -801,24 +800,7 @@ ggplot(all_trips_v2, aes(x = season)) +
   ggtitle("Rides by Season") +
   xlab("Season") + ylab("Number of rides")
 ```
-![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+![This is an image](https://i.imgur.com/3NFSDNp.png)
 
-Let's look at rides by day.  First, average ride times by day for members and causla riders.  We can clearly see that casual riders average longer rides than members every day.
 
-```r
-all_trips_v2 %>%
-  group_by(member_casual, day_of_week) %>%
-  summarize(total_trips = n(), avg_trip_mins = mean(ride_length_mins)) %>%
-  arrange(member_casual, day_of_week) %>%
-
-ggplot(aes(x = day_of_week, y = avg_trip_mins, fill = member_casual)) +
-  geom_col(position = "dodge") +
-  labs(title="Avg Rides of Member & Casual by Day",
-       caption="2023 Data")+
-  xlab("Days of the Week") + ylab("Average Ride Times (mins)")+
-  theme(plot.title =element_text(hjust = 0.5,size=15),
-        legend.title = element_text(size=18),
-        legend.text = element_text(size = 15))
-```
-![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
 
