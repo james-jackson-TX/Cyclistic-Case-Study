@@ -780,3 +780,43 @@ all_trips_v2 %>%
 ```
 These visuals illustrate the difference at 20 mins compared to all rides longer than 20 minutes.
 ![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+
+Now let's look at rides by a few different break downs
+Let's start with rides by month.  When we look at this information by season shortly you will see even more dramatic results, but here you can easily see that unsurprisingly the winter month (Dec-Feb) have the lowest usage, and the summer months (Jun-Aug) have the highest usage by both members and casual riders.
+```r
+all_trips_v2$month = factor(all_trips_v2$month, levels = month.name)
+ggplot(all_trips_v2, aes(x = month)) +
+  geom_bar(aes(fill = member_casual)) +
+  ggtitle("Rides by month") +
+  xlab("Month") + ylab("Number of rides")
+```
+![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+
+
+```r
+ggplot(all_trips_v2, aes(x = season)) +
+  geom_bar(aes(fill = member_casual)) +
+  ggtitle("Rides by Season") +
+  xlab("Season") + ylab("Number of rides")
+```
+![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+
+Let's look at rides by day.  First, average ride times by day for members and causla riders.  We can clearly see that casual riders average longer rides than members every day.
+
+```r
+all_trips_v2 %>%
+  group_by(member_casual, day_of_week) %>%
+  summarize(total_trips = n(), avg_trip_mins = mean(ride_length_mins)) %>%
+  arrange(member_casual, day_of_week) %>%
+
+ggplot(aes(x = day_of_week, y = avg_trip_mins, fill = member_casual)) +
+  geom_col(position = "dodge") +
+  labs(title="Avg Rides of Member & Casual by Day",
+       caption="2023 Data")+
+  xlab("Days of the Week") + ylab("Average Ride Times (mins)")+
+  theme(plot.title =element_text(hjust = 0.5,size=15),
+        legend.title = element_text(size=18),
+        legend.text = element_text(size = 15))
+```
+![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
+
