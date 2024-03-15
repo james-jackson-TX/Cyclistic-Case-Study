@@ -692,6 +692,8 @@ ggplot(data = weekly_trips)+
   labs(title = 'Rides by Day of Week 2023', subtitle = 'Comparing Casual Riders to Members', x = 'Day of the Week', y = 'Rides', fill = 'Member Type')+
   facet_wrap(~member_casual)
 ```
+![This is an image](https://imgur.com/rzuZM34)
+![This is an image](https://imgur.com/rzuZM34)
 ![This is an image](https://img.freepik.com/free-vector/abstract-coming-soon-halftone-style-background-design_1017-27282.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710288000&semt=ais)
 
 ```r
