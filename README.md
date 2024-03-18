@@ -820,5 +820,24 @@ ggplot(all_trips_v2, aes(x = season)) +
 ```
 ![This is an image](https://i.imgur.com/3NFSDNp.png)
 
-
-
+## 3.6 Comparing Start Times by Day
+In this chart, we will look at the number of rides based on the start time for each day grouped by rider type (member/casual)
+```r
+# create plot for start times (hour) per day for member and casual
+all_trips_v2 %>%
+  group_by(hour, member_casual, day_of_week) %>%
+  summarize(number_of_rides = n(), .groups = "drop") %>%
+  ggplot(aes(x = hour, y = number_of_rides, fill = member_casual)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_wrap(~day_of_week) +
+  scale_y_continuous(labels = function(x) format(x, big.mark = ",", scientific = FALSE)) +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 14),
+        axis.text.x = element_blank()) +
+  labs(x = "Start Time", y = "Number of Rides") +
+  labs(title = "Ride Start Time by Hour and Day 2023",
+       subtitle = "Compring Members vs Casual Riders", 
+       fill = "Customer Type")
+```
+![This is an image](https://i.imgur.com/UXqb6bU.png)
+We can see that on weekdays, members take more rides than casual members by significant margins, but on the weekends, the usage is amost even with members only slightly higher than casual riders.  As we look at the shape of each chart, we can tell the patterns are very consistent.  Weekdays have a mid-morning peak and an early evening peak, continuing to reinforce a significant number of members using the bikes for work rides.  Similarly, casual rides are consistent with an early evening peak.  Weekends show a longer period of high volume without any sudden spike.  
