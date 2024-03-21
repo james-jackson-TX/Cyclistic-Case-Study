@@ -859,3 +859,33 @@ all_trips_v2 %>%
 ```
 ![This is an image](https://i.imgur.com/UXqb6bU.png)
 We can see that on weekdays, members take more rides than casual members by significant margins, but on the weekends, the usage is amost even with members only slightly higher than casual riders.  As we look at the shape of each chart, we can tell the patterns are very consistent.  Weekdays have a mid-morning peak and an early evening peak, continuing to reinforce a significant number of members using the bikes for work rides.  Similarly, casual rides are consistent with an early evening peak.  Weekends show a longer period of high volume without any sudden spike.  
+
+## 5.7 Summary of Analysis
+
+Members
+- 64% of total rides taken by members
+- On average, members rides are 12.5 mins
+- Highest usage days: Tuesday, Wednesday, Thursday
+- Lowest usage days: Saturday, Sunday
+- Average ride lengths are highest on weekends (13.9 mins avg on weekends)
+- 68% of rides under 20 mins taken by members. Drops to 48% for rides over 20 mins
+
+Casual
+- 36% of total rides taken by casual riders
+- On average, members rides are 21.4 mins
+- Highest usage days: Saturday, Sunday
+- Lowest usage days: Monday, Tuesday, Wednesday
+- Average ride lengths are highest on weekends (24.7 mins avg on weekends)
+- 32% of rides under 20 mins taken by casual riders. Jumps to 52% for rides over 20 mins
+- Prefer electric bikes more than members
+
+ # 6 ACT
+
+Recommendations
+ 1. While summer months show spike for casual riders, the data used for this analysis does not tell us what effect tourists might have on the increase.  Heavily marketing during these months may produce weaker results as visitors are unlikely to become members.  Given CHicago weather in winter, the number of rides for both members and casual riders are understandably low, but casual riders during these months may be more likely to be non-recreational locals and thus more likely to consider membership.  Spring sees the start of increased casual riding, which makes it an optimal time to push membership advantages to repeat casual riders. 
+ 2. Casual riders usage spikes on the weekends and again could be driven up by non-local visitors unlikely to become members.  The consistency in the weekday rentals indicate that marketing and promotions to weekdays users might yield higher conversion rates than weekend marketing.
+ 3.  For the weekend user, marketing could drive conversion by emphasizing cost savings for those repeat weekend riders (membership is less than X number of rides per month)
+
+
+
+
